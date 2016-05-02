@@ -1,0 +1,613 @@
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+
+<meta charset="utf-8">
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="pandoc" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<meta name="author" content="Alex Stringer" />
+
+<meta name="date" content="2016-04-22" />
+
+<title>modellingTools: Common Tools for Data Preparation and Modelling</title>
+
+
+
+<style type="text/css">code{white-space: pre;}</style>
+<style type="text/css">
+div.sourceCode { overflow-x: auto; }
+table.sourceCode, tr.sourceCode, td.lineNumbers, td.sourceCode {
+  margin: 0; padding: 0; vertical-align: baseline; border: none; }
+table.sourceCode { width: 100%; line-height: 100%; }
+td.lineNumbers { text-align: right; padding-right: 4px; padding-left: 4px; color: #aaaaaa; border-right: 1px solid #aaaaaa; }
+td.sourceCode { padding-left: 5px; }
+code > span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code > span.dt { color: #902000; } /* DataType */
+code > span.dv { color: #40a070; } /* DecVal */
+code > span.bn { color: #40a070; } /* BaseN */
+code > span.fl { color: #40a070; } /* Float */
+code > span.ch { color: #4070a0; } /* Char */
+code > span.st { color: #4070a0; } /* String */
+code > span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code > span.ot { color: #007020; } /* Other */
+code > span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code > span.fu { color: #06287e; } /* Function */
+code > span.er { color: #ff0000; font-weight: bold; } /* Error */
+code > span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+code > span.cn { color: #880000; } /* Constant */
+code > span.sc { color: #4070a0; } /* SpecialChar */
+code > span.vs { color: #4070a0; } /* VerbatimString */
+code > span.ss { color: #bb6688; } /* SpecialString */
+code > span.im { } /* Import */
+code > span.va { color: #19177c; } /* Variable */
+code > span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code > span.op { color: #666666; } /* Operator */
+code > span.bu { } /* BuiltIn */
+code > span.ex { } /* Extension */
+code > span.pp { color: #bc7a00; } /* Preprocessor */
+code > span.at { color: #7d9029; } /* Attribute */
+code > span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code > span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code > span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+</style>
+
+
+<link href="data:text/css;charset=utf-8,body%20%7B%0Abackground%2Dcolor%3A%20%23fff%3B%0Amargin%3A%201em%20auto%3B%0Amax%2Dwidth%3A%20700px%3B%0Aoverflow%3A%20visible%3B%0Apadding%2Dleft%3A%202em%3B%0Apadding%2Dright%3A%202em%3B%0Afont%2Dfamily%3A%20%22Open%20Sans%22%2C%20%22Helvetica%20Neue%22%2C%20Helvetica%2C%20Arial%2C%20sans%2Dserif%3B%0Afont%2Dsize%3A%2014px%3B%0Aline%2Dheight%3A%201%2E35%3B%0A%7D%0A%23header%20%7B%0Atext%2Dalign%3A%20center%3B%0A%7D%0A%23TOC%20%7B%0Aclear%3A%20both%3B%0Amargin%3A%200%200%2010px%2010px%3B%0Apadding%3A%204px%3B%0Awidth%3A%20400px%3B%0Aborder%3A%201px%20solid%20%23CCCCCC%3B%0Aborder%2Dradius%3A%205px%3B%0Abackground%2Dcolor%3A%20%23f6f6f6%3B%0Afont%2Dsize%3A%2013px%3B%0Aline%2Dheight%3A%201%2E3%3B%0A%7D%0A%23TOC%20%2Etoctitle%20%7B%0Afont%2Dweight%3A%20bold%3B%0Afont%2Dsize%3A%2015px%3B%0Amargin%2Dleft%3A%205px%3B%0A%7D%0A%23TOC%20ul%20%7B%0Apadding%2Dleft%3A%2040px%3B%0Amargin%2Dleft%3A%20%2D1%2E5em%3B%0Amargin%2Dtop%3A%205px%3B%0Amargin%2Dbottom%3A%205px%3B%0A%7D%0A%23TOC%20ul%20ul%20%7B%0Amargin%2Dleft%3A%20%2D2em%3B%0A%7D%0A%23TOC%20li%20%7B%0Aline%2Dheight%3A%2016px%3B%0A%7D%0Atable%20%7B%0Amargin%3A%201em%20auto%3B%0Aborder%2Dwidth%3A%201px%3B%0Aborder%2Dcolor%3A%20%23DDDDDD%3B%0Aborder%2Dstyle%3A%20outset%3B%0Aborder%2Dcollapse%3A%20collapse%3B%0A%7D%0Atable%20th%20%7B%0Aborder%2Dwidth%3A%202px%3B%0Apadding%3A%205px%3B%0Aborder%2Dstyle%3A%20inset%3B%0A%7D%0Atable%20td%20%7B%0Aborder%2Dwidth%3A%201px%3B%0Aborder%2Dstyle%3A%20inset%3B%0Aline%2Dheight%3A%2018px%3B%0Apadding%3A%205px%205px%3B%0A%7D%0Atable%2C%20table%20th%2C%20table%20td%20%7B%0Aborder%2Dleft%2Dstyle%3A%20none%3B%0Aborder%2Dright%2Dstyle%3A%20none%3B%0A%7D%0Atable%20thead%2C%20table%20tr%2Eeven%20%7B%0Abackground%2Dcolor%3A%20%23f7f7f7%3B%0A%7D%0Ap%20%7B%0Amargin%3A%200%2E5em%200%3B%0A%7D%0Ablockquote%20%7B%0Abackground%2Dcolor%3A%20%23f6f6f6%3B%0Apadding%3A%200%2E25em%200%2E75em%3B%0A%7D%0Ahr%20%7B%0Aborder%2Dstyle%3A%20solid%3B%0Aborder%3A%20none%3B%0Aborder%2Dtop%3A%201px%20solid%20%23777%3B%0Amargin%3A%2028px%200%3B%0A%7D%0Adl%20%7B%0Amargin%2Dleft%3A%200%3B%0A%7D%0Adl%20dd%20%7B%0Amargin%2Dbottom%3A%2013px%3B%0Amargin%2Dleft%3A%2013px%3B%0A%7D%0Adl%20dt%20%7B%0Afont%2Dweight%3A%20bold%3B%0A%7D%0Aul%20%7B%0Amargin%2Dtop%3A%200%3B%0A%7D%0Aul%20li%20%7B%0Alist%2Dstyle%3A%20circle%20outside%3B%0A%7D%0Aul%20ul%20%7B%0Amargin%2Dbottom%3A%200%3B%0A%7D%0Apre%2C%20code%20%7B%0Abackground%2Dcolor%3A%20%23f7f7f7%3B%0Aborder%2Dradius%3A%203px%3B%0Acolor%3A%20%23333%3B%0Awhite%2Dspace%3A%20pre%2Dwrap%3B%20%0A%7D%0Apre%20%7B%0Aborder%2Dradius%3A%203px%3B%0Amargin%3A%205px%200px%2010px%200px%3B%0Apadding%3A%2010px%3B%0A%7D%0Apre%3Anot%28%5Bclass%5D%29%20%7B%0Abackground%2Dcolor%3A%20%23f7f7f7%3B%0A%7D%0Acode%20%7B%0Afont%2Dfamily%3A%20Consolas%2C%20Monaco%2C%20%27Courier%20New%27%2C%20monospace%3B%0Afont%2Dsize%3A%2085%25%3B%0A%7D%0Ap%20%3E%20code%2C%20li%20%3E%20code%20%7B%0Apadding%3A%202px%200px%3B%0A%7D%0Adiv%2Efigure%20%7B%0Atext%2Dalign%3A%20center%3B%0A%7D%0Aimg%20%7B%0Abackground%2Dcolor%3A%20%23FFFFFF%3B%0Apadding%3A%202px%3B%0Aborder%3A%201px%20solid%20%23DDDDDD%3B%0Aborder%2Dradius%3A%203px%3B%0Aborder%3A%201px%20solid%20%23CCCCCC%3B%0Amargin%3A%200%205px%3B%0A%7D%0Ah1%20%7B%0Amargin%2Dtop%3A%200%3B%0Afont%2Dsize%3A%2035px%3B%0Aline%2Dheight%3A%2040px%3B%0A%7D%0Ah2%20%7B%0Aborder%2Dbottom%3A%204px%20solid%20%23f7f7f7%3B%0Apadding%2Dtop%3A%2010px%3B%0Apadding%2Dbottom%3A%202px%3B%0Afont%2Dsize%3A%20145%25%3B%0A%7D%0Ah3%20%7B%0Aborder%2Dbottom%3A%202px%20solid%20%23f7f7f7%3B%0Apadding%2Dtop%3A%2010px%3B%0Afont%2Dsize%3A%20120%25%3B%0A%7D%0Ah4%20%7B%0Aborder%2Dbottom%3A%201px%20solid%20%23f7f7f7%3B%0Amargin%2Dleft%3A%208px%3B%0Afont%2Dsize%3A%20105%25%3B%0A%7D%0Ah5%2C%20h6%20%7B%0Aborder%2Dbottom%3A%201px%20solid%20%23ccc%3B%0Afont%2Dsize%3A%20105%25%3B%0A%7D%0Aa%20%7B%0Acolor%3A%20%230033dd%3B%0Atext%2Ddecoration%3A%20none%3B%0A%7D%0Aa%3Ahover%20%7B%0Acolor%3A%20%236666ff%3B%20%7D%0Aa%3Avisited%20%7B%0Acolor%3A%20%23800080%3B%20%7D%0Aa%3Avisited%3Ahover%20%7B%0Acolor%3A%20%23BB00BB%3B%20%7D%0Aa%5Bhref%5E%3D%22http%3A%22%5D%20%7B%0Atext%2Ddecoration%3A%20underline%3B%20%7D%0Aa%5Bhref%5E%3D%22https%3A%22%5D%20%7B%0Atext%2Ddecoration%3A%20underline%3B%20%7D%0A%0Acode%20%3E%20span%2Ekw%20%7B%20color%3A%20%23555%3B%20font%2Dweight%3A%20bold%3B%20%7D%20%0Acode%20%3E%20span%2Edt%20%7B%20color%3A%20%23902000%3B%20%7D%20%0Acode%20%3E%20span%2Edv%20%7B%20color%3A%20%2340a070%3B%20%7D%20%0Acode%20%3E%20span%2Ebn%20%7B%20color%3A%20%23d14%3B%20%7D%20%0Acode%20%3E%20span%2Efl%20%7B%20color%3A%20%23d14%3B%20%7D%20%0Acode%20%3E%20span%2Ech%20%7B%20color%3A%20%23d14%3B%20%7D%20%0Acode%20%3E%20span%2Est%20%7B%20color%3A%20%23d14%3B%20%7D%20%0Acode%20%3E%20span%2Eco%20%7B%20color%3A%20%23888888%3B%20font%2Dstyle%3A%20italic%3B%20%7D%20%0Acode%20%3E%20span%2Eot%20%7B%20color%3A%20%23007020%3B%20%7D%20%0Acode%20%3E%20span%2Eal%20%7B%20color%3A%20%23ff0000%3B%20font%2Dweight%3A%20bold%3B%20%7D%20%0Acode%20%3E%20span%2Efu%20%7B%20color%3A%20%23900%3B%20font%2Dweight%3A%20bold%3B%20%7D%20%20code%20%3E%20span%2Eer%20%7B%20color%3A%20%23a61717%3B%20background%2Dcolor%3A%20%23e3d2d2%3B%20%7D%20%0A" rel="stylesheet" type="text/css" />
+
+</head>
+
+<body>
+
+
+
+<div class="fluid-row" id="header">
+
+
+<h1 class="title">modellingTools: Common Tools for Data Preparation and Modelling</h1>
+<h4 class="author"><em>Alex Stringer</em></h4>
+<h4 class="date"><em>2016-04-22</em></h4>
+
+</div>
+
+
+<div id="installation" class="section level1">
+<h1>Installation</h1>
+<p>The package is not yet on <code>CRAN</code>, but you can get the latest version easily from the <a href="http://github.com/awstringer/modellingTools">github page</a> by using the <code>install_github</code> function in Hadley Wickam’s <code>devtools</code> package:</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">install.packages</span>(<span class="st">&quot;devtools&quot;</span>)
+devtools::<span class="kw">install_github</span>(<span class="st">&quot;awstringer/ModellingTools&quot;</span>)</code></pre></div>
+<p>To use the package interactively, you of course must load it in your session:</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(modellingTools)</code></pre></div>
+</div>
+<div id="what-this-package-offers" class="section level1">
+<h1>What This Package Offers</h1>
+<p>R is a programming language designed primarily to facilitate statistical modelling. It is <em>not</em> a power-user language like SAS, designed to make common data analysis tasks easier. This is what makes R great- it assumes that the user is dedicated enough to program their own custom solutions to problems, and it makes doing so pleasant and productive.</p>
+<p>Sometimes though, you just want to analyze your data- you are doing so as part of a larger project, and don’t have time to spend hours programming solutions to simple problems like getting frequency distributions or discretizing continuous variables. That’s where <code>modellingTools</code> comes in- simple, easy to use functions for performing common data analysis tasks that are easy to do in power-user platforms like SAS. Using <code>modellingTools</code> allows the user to abstract away the details and focus on their <em>data</em>.</p>
+<p>The core principle behind the package is that data analysis and modelling should work fluidly together. Having data and tools that work together to perform both tasks minimizes analyst effort and errors, and provides a more engaging and repeatable experience.</p>
+<p>The package has the following modules:</p>
+<ul>
+<li><p><strong>Helpful Functions</strong>: collection of (you guessed it) helpful functions for use in your day-to-day data analysis</p></li>
+<li><p><strong>Descriptive Statistics</strong>: Easily view the frequency distribution of your variables (including automatic discretization of continuous variables, if you don’t want to look at hundreds/thousands of unique values), compute and sort correlations of inputs with a response- this module makes easy the tasks you should normally do before building a model</p></li>
+<li><p><strong>Variable Discretization</strong>: A common task in data analysis is to convert continuous variables into discrete ones. This is surprisingly difficult to do in base R, so this module makes it simple and flexible.</p></li>
+</ul>
+<p>All of the functions are documented, e.g. <code>?simple_bin</code>. This vignette serves as a comprehensive list of what’s available, and includes select commentary and examples of when certain functions might be useful.</p>
+<p><strong>Important Note: </strong> to run the examples in this package, you should have the <code>dplyr</code> and <code>magrittr</code> packages installed and attached to the search path,</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># install.packages(c(&quot;dplyr&quot;,&quot;magrittr&quot;))</span>
+<span class="kw">library</span>(dplyr)
+<span class="kw">library</span>(magrittr)</code></pre></div>
+<p>You should <em>always</em> have these packages attached when running <code>R</code> interactively, because they are the best.</p>
+<p>Of course, you also need the modellingTools package installed!</p>
+<hr />
+</div>
+<div id="modules" class="section level1">
+<h1>Modules</h1>
+<div id="helpful-functions" class="section level2">
+<h2>Helpful Functions</h2>
+<p>This module contains some common functions that I use when programming to simplify tasks that frankly, should be simple. Most of them are simple one or two-liners, but they have been unit tested and documented for your convenience.</p>
+<div id="column_vector" class="section level3">
+<h3>column_vector</h3>
+<p>This is a simple convenience function that grabs a single column of a dataframe and returns it as a vector, either <code>numeric</code>, <code>factor</code> or <code>character</code> depending on its type in the dataframe. Designed to work with the <code>tbl_df</code> class from the <code>dplyr</code> package but there is no reason it won’t work on arbitrary dataframes.</p>
+<p>I find that using this function makes my code cleaner and more predictable. For example,</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">d &lt;-<span class="st"> </span>iris
+d[,<span class="dv">1</span>]</code></pre></div>
+<p>should return a numeric vector with a name. However</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">d[,<span class="kw">c</span>(<span class="dv">1</span>,<span class="dv">2</span>)]</code></pre></div>
+<p>returns a dataframe. Maybe this makes sense- but how many of us would look at the above code snippets and <em>know</em> what would be returned, without thinking? The <code>dplyr</code> package provides the <code>tbl_df</code> class (which you should always use!):</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">d &lt;-<span class="st"> </span><span class="kw">tbl_df</span>(iris)
+d[,<span class="dv">1</span>]</code></pre></div>
+<pre><code>## Source: local data frame [150 x 1]
+## 
+##    Sepal.Length
+##           (dbl)
+## 1           5.1
+## 2           4.9
+## 3           4.7
+## 4           4.6
+## 5           5.0
+## 6           5.4
+## 7           4.6
+## 8           5.0
+## 9           4.4
+## 10          4.9
+## ..          ...</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">d[,<span class="kw">c</span>(<span class="dv">1</span>,<span class="dv">2</span>)]</code></pre></div>
+<pre><code>## Source: local data frame [150 x 2]
+## 
+##    Sepal.Length Sepal.Width
+##           (dbl)       (dbl)
+## 1           5.1         3.5
+## 2           4.9         3.0
+## 3           4.7         3.2
+## 4           4.6         3.1
+## 5           5.0         3.6
+## 6           5.4         3.9
+## 7           4.6         3.4
+## 8           5.0         3.4
+## 9           4.4         2.9
+## 10          4.9         3.1
+## ..          ...         ...</code></pre>
+<p>which provides consistent behaviour. But then, how do you get a numeric vector containing just one column?</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">unlist</span>(d[,<span class="dv">1</span>])</code></pre></div>
+<p>Save yourself some typing and use <code>column_vector</code>:</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">column_vector</span>(d,<span class="dv">1</span>)</code></pre></div>
+<p>This will work with both types of dataframe, as well as objects of class <code>matrix</code> and <code>array</code>, so your code will be clean and predictable.</p>
+<p>One final note: since I am claiming consistent behaviour is good, what happens if you run</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">column_vector</span>(d,<span class="kw">c</span>(<span class="dv">1</span>,<span class="dv">2</span>))</code></pre></div>
+<p>Probably not what you would expect, or want- I recommend against using it this way. Indeed, <code>column_vector</code> will give a warning if the user supplies multiple requested columns.</p>
+</div>
+</div>
+<div id="descriptive-statistics" class="section level2">
+<h2>Descriptive Statistics</h2>
+<p>This module provides functions for performing these simple, yet sometimes tricky to implement data analysis tasks.</p>
+<p>For example, everyone should be able to easily compute the frequency distribution of their variables. R provides many useful functions for doing this, however they are often confusing and have inconsistent output formats.</p>
+<div id="proc_freq" class="section level3">
+<h3>proc_freq</h3>
+<p>How do you get the frequency distribution of a variable in <code>R</code>? You can use <code>table</code>:</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">data</span>(CO2)
+CO2 %$%<span class="st"> </span><span class="kw">table</span>(Plant)</code></pre></div>
+<pre><code>## Plant
+## Qn1 Qn2 Qn3 Qc1 Qc3 Qc2 Mn3 Mn2 Mn1 Mc2 Mc3 Mc1 
+##   7   7   7   7   7   7   7   7   7   7   7   7</code></pre>
+<p>This works for cross-tabulation as well:</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">CO2 %$%<span class="st"> </span><span class="kw">table</span>(Plant,Type)</code></pre></div>
+<pre><code>##      Type
+## Plant Quebec Mississippi
+##   Qn1      7           0
+##   Qn2      7           0
+##   Qn3      7           0
+##   Qc1      7           0
+##   Qc3      7           0
+##   Qc2      7           0
+##   Mn3      0           7
+##   Mn2      0           7
+##   Mn1      0           7
+##   Mc2      0           7
+##   Mc3      0           7
+##   Mc1      0           7</code></pre>
+<p>What about three way tables? You can try the following yourself:</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">CO2 %$%<span class="st"> </span><span class="kw">table</span>(Plant,Type,Treatment)</code></pre></div>
+<p>(by the way, the <code>%$%</code> operator is from the <code>magrittr</code> package. Highly recommend checking this out, it will change the way you program in <code>R</code>).</p>
+<p>This works well, but</p>
+<ul>
+<li>the output format is a named vector, which can be hard to read</li>
+<li>the output format changes as you provide more arguments (for two variables it is a matrix, for 3+ it is a multidimensional array)</li>
+<li>the documentation is confusing (if you figure it out let me know!)</li>
+</ul>
+<p>Why should there be 10 arguments to a function that only does one thing? <code>proc_freq</code> has three: the <code>dat</code>aset that the variable is in, the <code>var</code>iable that you want the distribution of, and an optional <strong>awesome</strong> argument that specifies whether you want to discretize a continuous variable into <code>bins</code> before summarizing.</p>
+<p>The usage is simple:</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">proc_freq</span>(iris,<span class="st">&quot;Species&quot;</span>)</code></pre></div>
+<pre><code>## Source: local data frame [3 x 3]
+## 
+##        level count percent
+##       (fctr) (int)   (chr)
+## 1     setosa    50   33.3%
+## 2 versicolor    50   33.3%
+## 3  virginica    50   33.3%</code></pre>
+<p>The output is a <code>tbl_df</code>, a great data format from the <code>dplyr</code> package, and contains counts and percentages.</p>
+<p>What about the mysterious third argument to <code>proc_freq</code>: <code>bins</code>. This is used to discretize a continuous variable prior to summarizing. Why might one want to do this? When dealing with smaller, evenly distributed datasets, the need for this is not apparent:</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">proc_freq</span>(iris,<span class="st">&quot;Sepal.Length&quot;</span>)</code></pre></div>
+<pre><code>## Source: local data frame [35 x 3]
+## 
+##    level count percent
+##    (dbl) (int)   (chr)
+## 1    4.3     1   0.67%
+## 2    4.4     3   2.00%
+## 3    4.5     1   0.67%
+## 4    4.6     4   2.67%
+## 5    4.7     2   1.33%
+## 6    4.8     5   3.33%
+## 7    4.9     6   4.00%
+## 8    5.0    10   6.67%
+## 9    5.1     9   6.00%
+## 10   5.2     4   2.67%
+## ..   ...   ...     ...</code></pre>
+<p>This provides manageable, interpretible output. In my day to day work though, I deal with massive datasets (10,000,000+ rows), which often have</p>
+<ul>
+<li>large proportions of <em>special</em> values- datapoints that are missing for some known reason</li>
+<li>large proportions of <em>actual</em> missing values</li>
+</ul>
+<p>I don’t want to know how many times each unique value occurs in a dataset with 10,000,000 rows, and I <em>definitely</em> don’t want to exclude missing values (have you noticed that that is the default behaviour of <code>table</code>?). What happens when you used <code>table</code>?</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(foreach) <span class="co"># Check this out if you haven't already</span></code></pre></div>
+<pre><code>## foreach: simple, scalable parallel programming from Revolution Analytics
+## Use Revolution R for scalability, fault tolerance and more.
+## http://www.revolutionanalytics.com</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># Try for 1,000 observations, for illustration purposes</span>
+d &lt;-<span class="st"> </span><span class="kw">data_frame</span>(<span class="dt">v1 =</span> <span class="kw">times</span>(<span class="fl">1e04</span>) %do%<span class="st"> </span>if (<span class="kw">runif</span>(<span class="dv">1</span>) &lt;<span class="st"> </span>.<span class="dv">1</span>) <span class="ot">NA</span> else <span class="kw">rnorm</span>(<span class="dv">1</span>))</code></pre></div>
+<p>Try running the following yourself:</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">d %$%<span class="st"> </span><span class="kw">table</span>(v1)
+<span class="kw">proc_freq</span>(d,<span class="st">&quot;v1&quot;</span>)</code></pre></div>
+<p>The output of <code>table</code> is a giant vector that is essentally unreadable without some further intervention on the part of the programmer- not ideal. The output of <code>proc_freq</code> is readable but useless, since there are so many unique values. There is a better way:</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">proc_freq</span>(d,<span class="st">&quot;v1&quot;</span>,<span class="dt">bins =</span> <span class="dv">3</span>)</code></pre></div>
+<pre><code>## Source: local data frame [4 x 3]
+## 
+##          level count percent
+##         (fctr) (int)   (chr)
+## 1 [-3.84,-1.2]  1021   10.2%
+## 2  (-1.2,1.44]  7274   72.7%
+## 3  (1.44,4.08]   687    6.9%
+## 4           NA  1018   10.2%</code></pre>
+<p>Using <code>bins = 3</code> with <code>proc_freq</code> gives the user insight into the distribution of the data and the proportion of missing/special values using one line of code and a single, consistent output format.</p>
+</div>
+<div id="get_top_corrs" class="section level3">
+<h3>get_top_corrs</h3>
+<p>This function helps to answer the simple questions “are any input variables correlated with the response of interest and if so, which ones and how much?”. You can get this information using base <code>R</code> by, for example:</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">x &lt;-<span class="st"> </span>mtcars[,-<span class="dv">1</span>]
+y &lt;-<span class="st"> </span>mtcars[,<span class="dv">1</span>]
+<span class="kw">apply</span>(x,<span class="dv">2</span>,function(a,b) <span class="kw">cor</span>(a,b),<span class="dt">b =</span> y)</code></pre></div>
+<pre><code>##        cyl       disp         hp       drat         wt       qsec 
+## -0.8521620 -0.8475514 -0.7761684  0.6811719 -0.8676594  0.4186840 
+##         vs         am       gear       carb 
+##  0.6640389  0.5998324  0.4802848 -0.5509251</code></pre>
+<p>This works okay, but the output is a bit verbose and difficult to work with. Oh and hard to read if you have more than a few variables. Oh and what if some of them are non-numeric? Okay I’ll build in an <code>if</code> statement to check and darn, what about <code>NA</code>s…</p>
+<p>Stop. Use <code>get_top_corrs</code> instead! This function</p>
+<ul>
+<li>Returns a <code>tbl_df</code> with two columns: the <code>var_name</code> and the <code>correlation</code> with <code>response_var</code></li>
+<li>Sorts variables in descending order of <code>correlation</code>, for easy viewing</li>
+<li>Drops all non-numeric variables</li>
+<li>Filters out <code>NA</code> values from correlation computations</li>
+<li>Is paralellized, if you have a parallel backend registered (see package <code>doParalell</code>)</li>
+</ul>
+<p>So we can do</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">get_top_corrs</span>(mtcars,<span class="st">&quot;mpg&quot;</span>)</code></pre></div>
+<pre><code>## Source: local data frame [10 x 2]
+## 
+##    var_name correlation
+##       (chr)       (dbl)
+## 1        wt  -0.8676594
+## 2       cyl  -0.8521620
+## 3      disp  -0.8475514
+## 4        hp  -0.7761684
+## 5      drat   0.6811719
+## 6        vs   0.6640389
+## 7        am   0.5998324
+## 8      carb  -0.5509251
+## 9      gear   0.4802848
+## 10     qsec   0.4186840</code></pre>
+<p>and gain immediate insights, instead of trying to do it the hard way for 5 minutes and just giving up.</p>
+</div>
+</div>
+<div id="variable-discretization" class="section level2">
+<h2>Variable Discretization</h2>
+<p>Discretizing continuous variables is often useful practice for removing undesirable patterns or improving model predictions. R provides useful functions (<code>cut</code>) for binning vectors, but it takes some work on the part of the programmer to apply these consistently to a whole dataset.</p>
+<p>What is meant by <em>discretization</em>, also known as <em>binning</em>, is to convert a numeric variable into a categorical one, by assigning each observation to a “bin” depending on its numeric value. For example, if you aren’t interested in whether a value is <code>1.9</code> or <code>2.1</code>, but only whether it is <code>&lt; 2</code> or <code>&gt;= 2</code>, you might want to try binning your data.</p>
+<p>There are three types of binning available in <code>modellingTools</code>:</p>
+<ul>
+<li><p><strong>Equal Width Binning</strong>: this will bin a continuous variable into a specified number of bins, each of which has the same length in units of the original variable. For example, binning into ranges (0,1], (1,2], (2,3] … and so on. This is useful for analyzing the frequency distribution of a continuous variable with many unique levels- in fact, this is exactly what you are doing when you make a histogram</p></li>
+<li><p><strong>Equal Height Binning</strong>: this will bin a continuous variable into a specified number of bins that each have the same <em>number of observations</em> in them. That is, the actual cutpoints of the bins are chosen by the data. This helps when attempting to estimate how a rate, for example a rate of disease, differs according to a continuous variable, but the distribution of the continuous variable is not flat. For example, electoral ridings in Canada are (roughly) chosen to have the same number of people in them. Imagine if they were chosen instead based on fixed geographic area- Toronto/Vancouver/Montreal would only get one MP each!</p></li>
+<li><p><strong>Arbitrary Binning</strong>: this simply lets the user specify their own cutpoints. This is provided to ensure complete generality, but it is particularly useful when the user wishes to create bins based on one dataset, and then analyze the same variable on a different dataset using the same bins- for example when calculating the same descriptive statistics on datasets containing the same variables, but collected at different points in time.</p></li>
+</ul>
+<div id="simple_bin" class="section level3">
+<h3>simple_bin</h3>
+<p>This is currently the main function in the discretization module. The purpose is to make it simple to convert each continuous variable in a dataset to a categorical variable by applying <em>equal-height</em> or <em>equal-width</em> bins, and to make it simple to bin the same variables in a new dataset into those same bins. The primary use would be in building a model on a training set and applying it to a test set, which requires the categorical variables in both to have the same levels.</p>
+<p>For details on the arguments to <code>simple_bin</code>, see the documentation <code>?modellingTools::simple_bin</code>. We can observe the basic usage of <code>simple_bin</code> as follows:</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">data</span>(Seatbelts)
+d &lt;-<span class="st"> </span><span class="kw">tbl_df</span>(<span class="kw">as.data.frame</span>(Seatbelts))
+d</code></pre></div>
+<pre><code>## Source: local data frame [192 x 8]
+## 
+##    DriversKilled drivers front  rear   kms PetrolPrice VanKilled   law
+##            (dbl)   (dbl) (dbl) (dbl) (dbl)       (dbl)     (dbl) (dbl)
+## 1            107    1687   867   269  9059   0.1029718        12     0
+## 2             97    1508   825   265  7685   0.1023630         6     0
+## 3            102    1507   806   319  9963   0.1020625        12     0
+## 4             87    1385   814   407 10955   0.1008733         8     0
+## 5            119    1632   991   454 11823   0.1010197        10     0
+## 6            106    1511   945   427 12391   0.1005812        13     0
+## 7            110    1559  1004   522 13460   0.1037740        11     0
+## 8            106    1630  1091   536 14055   0.1040764         6     0
+## 9            107    1579   958   405 12106   0.1037740        10     0
+## 10           134    1653   850   437 11372   0.1030264        16     0
+## ..           ...     ...   ...   ...   ...         ...       ...   ...</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">d_bin &lt;-<span class="st"> </span><span class="kw">simple_bin</span>(d,<span class="dt">bins =</span> <span class="dv">3</span>)
+d_bin</code></pre></div>
+<pre><code>## Source: local data frame [192 x 8]
+## 
+##    DriversKilled             drivers         front      rear
+##           (fctr)              (fctr)        (fctr)    (fctr)
+## 1       [60,110] [1.52e+03,1.76e+03]     [764,905] [224,365]
+## 2       [60,110] [1.06e+03,1.52e+03]     [764,905] [224,365]
+## 3       [60,110] [1.06e+03,1.52e+03]     [764,905] [224,365]
+## 4       [60,110] [1.06e+03,1.52e+03]     [764,905] [365,434]
+## 5      [110,131] [1.52e+03,1.76e+03] [905,1.3e+03] [434,646]
+## 6       [60,110] [1.06e+03,1.52e+03] [905,1.3e+03] [365,434]
+## 7      [110,131] [1.52e+03,1.76e+03] [905,1.3e+03] [434,646]
+## 8       [60,110] [1.52e+03,1.76e+03] [905,1.3e+03] [434,646]
+## 9       [60,110] [1.52e+03,1.76e+03] [905,1.3e+03] [365,434]
+## 10     [131,198] [1.52e+03,1.76e+03]     [764,905] [434,646]
+## ..           ...                 ...           ...       ...
+## Variables not shown: kms (fctr), PetrolPrice (fctr), VanKilled (fctr), law
+##   (dbl)</code></pre>
+<p>Notice that the variable <code>law</code> retains its <code>dbl</code> class- <code>simple_bin</code> automatically detects if there are not enough unique values of a variable to propoerly bin, and leaves them untouched. Variables that are already categorical are also automatically ignored. If you would like to know the cutpoints for the bins, check out <code>modellingTools:binned_data_cutpoints</code> below.</p>
+<p>When building a model, you very well may wish to fit the model on one subset of the data (a training set) and evaluate predictions on a different subset (a testing set). If dealing with variables that have been discretized (by you), this requires the variables in the testing set to be binned into the same ranges.</p>
+<p><code>simple_bin</code> automatically bins an optional test dataset into the same bins used on the training set:</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">d %&lt;&gt;%<span class="st"> </span><span class="kw">mutate</span>(<span class="dt">on_train =</span> <span class="kw">times</span>(<span class="kw">n</span>()) %do%<span class="st"> </span>if (<span class="kw">runif</span>(<span class="dv">1</span>) &lt;<span class="st"> </span>.<span class="dv">7</span>) <span class="dv">1</span> else <span class="dv">0</span>)
+d_train &lt;-<span class="st"> </span>d %&gt;%<span class="st"> </span><span class="kw">filter</span>(on_train ==<span class="st"> </span><span class="dv">1</span>) %&gt;%<span class="st"> </span><span class="kw">select</span>(-on_train)
+d_test &lt;-<span class="st"> </span>d %&gt;%<span class="st"> </span><span class="kw">filter</span>(on_train ==<span class="st"> </span><span class="dv">0</span>) %&gt;%<span class="st"> </span><span class="kw">select</span>(-on_train)
+
+d_split_binned &lt;-<span class="st"> </span><span class="kw">simple_bin</span>(d_train,<span class="dt">test =</span> d_test,<span class="dt">bins =</span> <span class="dv">3</span>)</code></pre></div>
+<pre><code>## Warning: executing %dopar% sequentially: no parallel backend registered</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">d_split_binned</code></pre></div>
+<pre><code>## $train
+## Source: local data frame [134 x 8]
+## 
+##    DriversKilled             drivers         front      rear
+##           (fctr)              (fctr)        (fctr)    (fctr)
+## 1       [60,108] [1.51e+03,1.74e+03]     [763,918] [224,357]
+## 2       [60,108] [1.06e+03,1.51e+03]     [763,918] [224,357]
+## 3       [60,108] [1.06e+03,1.51e+03]     [763,918] [357,442]
+## 4       [60,108] [1.06e+03,1.51e+03] [918,1.3e+03] [357,442]
+## 5      [108,130] [1.51e+03,1.74e+03] [918,1.3e+03] [442,646]
+## 6       [60,108] [1.51e+03,1.74e+03] [918,1.3e+03] [442,646]
+## 7       [60,108] [1.51e+03,1.74e+03] [918,1.3e+03] [357,442]
+## 8      [130,198] [1.51e+03,1.74e+03]     [763,918] [357,442]
+## 9      [130,198] [1.74e+03,2.65e+03] [918,1.3e+03] [357,442]
+## 10     [130,198] [1.74e+03,2.65e+03] [918,1.3e+03] [357,442]
+## ..           ...                 ...           ...       ...
+## Variables not shown: kms (fctr), PetrolPrice (fctr), VanKilled (fctr), law
+##   (dbl)
+## 
+## $test
+## Source: local data frame [58 x 8]
+## 
+##    DriversKilled             drivers         front      rear
+##           (fctr)              (fctr)        (fctr)    (fctr)
+## 1       [60,108] [1.06e+03,1.51e+03]     [763,918] [224,357]
+## 2      [108,130] [1.51e+03,1.74e+03] [918,1.3e+03] [442,646]
+## 3       [60,108] [1.51e+03,1.74e+03] [918,1.3e+03] [442,646]
+## 4      [130,198] [1.74e+03,2.65e+03] [918,1.3e+03] [442,646]
+## 5      [130,198] [1.74e+03,2.65e+03] [918,1.3e+03] [357,442]
+## 6      [130,198] [1.74e+03,2.65e+03] [918,1.3e+03] [357,442]
+## 7      [108,130] [1.74e+03,2.65e+03]     [763,918] [224,357]
+## 8      [130,198] [1.74e+03,2.65e+03] [918,1.3e+03] [357,442]
+## 9      [108,130] [1.74e+03,2.65e+03] [918,1.3e+03] [357,442]
+## 10     [130,198] [1.74e+03,2.65e+03]     [763,918] [224,357]
+## ..           ...                 ...           ...       ...
+## Variables not shown: kms (fctr), PetrolPrice (fctr), VanKilled (fctr), law
+##   (dbl)</code></pre>
+<p>But wait- why can’t we just bin the data <em>before</em> we split it up into training/test sets? This implicitly assumes that the test data will <em>always</em> be distributed <em>exactly</em> the same as the training data. This may be true when you are building the model (e.g. if you randomly split a complete dataset into the two parts) but if you go to deploy the model, it won’t be true on the next data that you need predictions on.</p>
+<p>Even if you don’t have the test set at the time you build the model, or if you wish to use the same model on future datasets, <code>simple_bin</code> can take custom bins. These must be passed as a named list- the exact format output by <code>mdellingTools::binned_data_cutpoints</code> (see below):</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">d_train_bin &lt;-<span class="st"> </span><span class="kw">simple_bin</span>(d_train,<span class="dt">bins =</span> <span class="dv">3</span>)
+train_cutpoints &lt;-<span class="st"> </span><span class="kw">binned_data_cutpoints</span>(d_train_bin)
+train_cutpoints</code></pre></div>
+<pre><code>## $DriversKilled
+## [1]  60 108 130 198
+## 
+## $drivers
+## [1] 1060 1510 1740 2650
+## 
+## $front
+## [1]  426  763  918 1300
+## 
+## $rear
+## [1] 224 357 442 646
+## 
+## $kms
+## [1]  7680 13000 16200 21600
+## 
+## $PetrolPrice
+## [1] 0.0827 0.0973 0.1100 0.1330
+## 
+## $VanKilled
+## [1]  3  7 11 17</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">d_test_bin &lt;-<span class="st"> </span><span class="kw">simple_bin</span>(d_test,<span class="dt">bins =</span> train_cutpoints)
+d_test_bin</code></pre></div>
+<pre><code>## Source: local data frame [58 x 8]
+## 
+##    DriversKilled             drivers         front      rear
+##           (fctr)              (fctr)        (fctr)    (fctr)
+## 1       [60,108] [1.06e+03,1.51e+03]     [763,918] [224,357]
+## 2      [108,130] [1.51e+03,1.74e+03] [918,1.3e+03] [442,646]
+## 3       [60,108] [1.51e+03,1.74e+03] [918,1.3e+03] [442,646]
+## 4      [130,198] [1.74e+03,2.65e+03] [918,1.3e+03] [442,646]
+## 5      [130,198] [1.74e+03,2.65e+03] [918,1.3e+03] [357,442]
+## 6      [130,198] [1.74e+03,2.65e+03] [918,1.3e+03] [357,442]
+## 7      [108,130] [1.74e+03,2.65e+03]     [763,918] [224,357]
+## 8      [130,198] [1.74e+03,2.65e+03] [918,1.3e+03] [357,442]
+## 9      [108,130] [1.74e+03,2.65e+03] [918,1.3e+03] [357,442]
+## 10     [130,198] [1.74e+03,2.65e+03]     [763,918] [224,357]
+## ..           ...                 ...           ...       ...
+## Variables not shown: kms (fctr), PetrolPrice (fctr), VanKilled (fctr), law
+##   (dbl)</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">identical</span>(d_test_bin,d_split_binned$test)</code></pre></div>
+<pre><code>## [1] TRUE</code></pre>
+</div>
+<div id="vector_bin" class="section level3">
+<h3>vector_bin</h3>
+<p>This function makes it easy to discretize a vector of variables into equal height/width or custom bins. This is a convenience function which is essentially just a wrapper around <code>cut</code>/<code>cut_number</code>/<code>cut_interval</code>, with one major difference: by default, missing values are given a bin. This can be useful when modelling data that is missing not-at-random.</p>
+<p>Usage is straightforward:</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">x &lt;-<span class="st"> </span><span class="kw">rnorm</span>(<span class="dv">100</span>)
+<span class="kw">vector_bin</span>(x,<span class="dt">bins =</span> <span class="dv">3</span>)</code></pre></div>
+<pre><code>##   [1] [0.421,3.32]   [-2.66,-0.443] [-0.443,0.421] [-0.443,0.421]
+##   [5] [-2.66,-0.443] [-2.66,-0.443] [-0.443,0.421] [-2.66,-0.443]
+##   [9] [0.421,3.32]   [-2.66,-0.443] [-2.66,-0.443] [0.421,3.32]  
+##  [13] [-0.443,0.421] [-2.66,-0.443] [-2.66,-0.443] [-2.66,-0.443]
+##  [17] [0.421,3.32]   [0.421,3.32]   [-0.443,0.421] [0.421,3.32]  
+##  [21] [0.421,3.32]   [-0.443,0.421] [-2.66,-0.443] [0.421,3.32]  
+##  [25] [0.421,3.32]   [0.421,3.32]   [-0.443,0.421] [-2.66,-0.443]
+##  [29] [-0.443,0.421] [-2.66,-0.443] [-2.66,-0.443] [0.421,3.32]  
+##  [33] [0.421,3.32]   [-0.443,0.421] [-2.66,-0.443] [0.421,3.32]  
+##  [37] [0.421,3.32]   [-2.66,-0.443] [-2.66,-0.443] [0.421,3.32]  
+##  [41] [-0.443,0.421] [0.421,3.32]   [-0.443,0.421] [-0.443,0.421]
+##  [45] [-0.443,0.421] [-0.443,0.421] [-2.66,-0.443] [0.421,3.32]  
+##  [49] [0.421,3.32]   [0.421,3.32]   [-0.443,0.421] [-2.66,-0.443]
+##  [53] [-0.443,0.421] [-2.66,-0.443] [-2.66,-0.443] [-0.443,0.421]
+##  [57] [-0.443,0.421] [-2.66,-0.443] [0.421,3.32]   [0.421,3.32]  
+##  [61] [0.421,3.32]   [-0.443,0.421] [-2.66,-0.443] [0.421,3.32]  
+##  [65] [-0.443,0.421] [-2.66,-0.443] [-0.443,0.421] [-2.66,-0.443]
+##  [69] [-0.443,0.421] [-2.66,-0.443] [-2.66,-0.443] [0.421,3.32]  
+##  [73] [-2.66,-0.443] [-0.443,0.421] [-0.443,0.421] [0.421,3.32]  
+##  [77] [0.421,3.32]   [-2.66,-0.443] [0.421,3.32]   [-2.66,-0.443]
+##  [81] [0.421,3.32]   [0.421,3.32]   [0.421,3.32]   [-0.443,0.421]
+##  [85] [-0.443,0.421] [-0.443,0.421] [0.421,3.32]   [-2.66,-0.443]
+##  [89] [0.421,3.32]   [-0.443,0.421] [-0.443,0.421] [-0.443,0.421]
+##  [93] [-2.66,-0.443] [-0.443,0.421] [-2.66,-0.443] [-2.66,-0.443]
+##  [97] [0.421,3.32]   [0.421,3.32]   [-0.443,0.421] [-0.443,0.421]
+## Levels: [-0.443,0.421] [-2.66,-0.443] [0.421,3.32]</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">vector_bin</span>(x,<span class="dt">bins =</span> <span class="dv">3</span>,<span class="dt">type =</span> <span class="st">&quot;width&quot;</span>)</code></pre></div>
+<pre><code>##   [1] [1.33,3.32]    [-2.66,-0.668] [-0.668,1.33]  [-0.668,1.33] 
+##   [5] [-2.66,-0.668] [-2.66,-0.668] [-0.668,1.33]  [-2.66,-0.668]
+##   [9] [-0.668,1.33]  [-2.66,-0.668] [-2.66,-0.668] [-0.668,1.33] 
+##  [13] [-0.668,1.33]  [-0.668,1.33]  [-2.66,-0.668] [-2.66,-0.668]
+##  [17] [-0.668,1.33]  [1.33,3.32]    [-0.668,1.33]  [1.33,3.32]   
+##  [21] [-0.668,1.33]  [-0.668,1.33]  [-2.66,-0.668] [-0.668,1.33] 
+##  [25] [-0.668,1.33]  [1.33,3.32]    [-0.668,1.33]  [-2.66,-0.668]
+##  [29] [-0.668,1.33]  [-2.66,-0.668] [-0.668,1.33]  [1.33,3.32]   
+##  [33] [1.33,3.32]    [-0.668,1.33]  [-0.668,1.33]  [-0.668,1.33] 
+##  [37] [-0.668,1.33]  [-0.668,1.33]  [-0.668,1.33]  [1.33,3.32]   
+##  [41] [-0.668,1.33]  [-0.668,1.33]  [-0.668,1.33]  [-0.668,1.33] 
+##  [45] [-0.668,1.33]  [-0.668,1.33]  [-2.66,-0.668] [-0.668,1.33] 
+##  [49] [-0.668,1.33]  [1.33,3.32]    [-0.668,1.33]  [-2.66,-0.668]
+##  [53] [-0.668,1.33]  [-2.66,-0.668] [-2.66,-0.668] [-0.668,1.33] 
+##  [57] [-0.668,1.33]  [-2.66,-0.668] [1.33,3.32]    [-0.668,1.33] 
+##  [61] [-0.668,1.33]  [-0.668,1.33]  [-2.66,-0.668] [-0.668,1.33] 
+##  [65] [-0.668,1.33]  [-2.66,-0.668] [-0.668,1.33]  [-2.66,-0.668]
+##  [69] [-0.668,1.33]  [-2.66,-0.668] [-2.66,-0.668] [-0.668,1.33] 
+##  [73] [-2.66,-0.668] [-0.668,1.33]  [-0.668,1.33]  [1.33,3.32]   
+##  [77] [-0.668,1.33]  [-2.66,-0.668] [-0.668,1.33]  [-0.668,1.33] 
+##  [81] [-0.668,1.33]  [-0.668,1.33]  [-0.668,1.33]  [-0.668,1.33] 
+##  [85] [-0.668,1.33]  [-0.668,1.33]  [-0.668,1.33]  [-0.668,1.33] 
+##  [89] [-0.668,1.33]  [-0.668,1.33]  [-0.668,1.33]  [-0.668,1.33] 
+##  [93] [-2.66,-0.668] [-0.668,1.33]  [-2.66,-0.668] [-2.66,-0.668]
+##  [97] [-0.668,1.33]  [-0.668,1.33]  [-0.668,1.33]  [-0.668,1.33] 
+## Levels: [-0.668,1.33] [-2.66,-0.668] [1.33,3.32]</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">vector_bin</span>(x,<span class="dt">bins =</span> <span class="kw">c</span>(-<span class="dv">1</span>,<span class="dv">0</span>,<span class="dv">1</span>))</code></pre></div>
+<pre><code>##   [1] [1,3.32]   [-2.66,-1] [0,1]      [0,1]      [-2.66,-1] [-1,0]    
+##   [7] [-1,0]     [-2.66,-1] [0,1]      [-1,0]     [-2.66,-1] [0,1]     
+##  [13] [-1,0]     [-1,0]     [-1,0]     [-1,0]     [0,1]      [1,3.32]  
+##  [19] [-1,0]     [1,3.32]   [0,1]      [0,1]      [-2.66,-1] [0,1]     
+##  [25] [1,3.32]   [1,3.32]   [0,1]      [-2.66,-1] [-1,0]     [-1,0]    
+##  [31] [-1,0]     [1,3.32]   [1,3.32]   [-1,0]     [-1,0]     [1,3.32]  
+##  [37] [0,1]      [-1,0]     [-1,0]     [1,3.32]   [-1,0]     [0,1]     
+##  [43] [-1,0]     [0,1]      [-1,0]     [-1,0]     [-2.66,-1] [0,1]     
+##  [49] [0,1]      [1,3.32]   [0,1]      [-2.66,-1] [0,1]      [-2.66,-1]
+##  [55] [-2.66,-1] [-1,0]     [0,1]      [-1,0]     [1,3.32]   [0,1]     
+##  [61] [0,1]      [-1,0]     [-2.66,-1] [0,1]      [-1,0]     [-2.66,-1]
+##  [67] [-1,0]     [-2.66,-1] [-1,0]     [-2.66,-1] [-1,0]     [0,1]     
+##  [73] [-2.66,-1] [-1,0]     [0,1]      [1,3.32]   [0,1]      [-1,0]    
+##  [79] [0,1]      [-1,0]     [0,1]      [0,1]      [0,1]      [0,1]     
+##  [85] [0,1]      [0,1]      [1,3.32]   [-1,0]     [0,1]      [-1,0]    
+##  [91] [-1,0]     [0,1]      [-1,0]     [0,1]      [-2.66,-1] [-2.66,-1]
+##  [97] [0,1]      [0,1]      [-1,0]     [-1,0]    
+## Levels: [-1,0] [-2.66,-1] [0,1] [1,3.32]</code></pre>
+</div>
+<div id="get_vector_cutpoints" class="section level3">
+<h3>get_vector_cutpoints</h3>
+<p>I found it was surprisingly difficult in <code>R</code> to perform the simple task of figuring out the actual cutpoints of a vector that has been discretized using one of the <code>cut</code> family. What if you try</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">x &lt;-<span class="st"> </span><span class="kw">vector_bin</span>(<span class="kw">rnorm</span>(<span class="dv">100</span>),<span class="dt">bins =</span> <span class="dv">3</span>)
+<span class="kw">levels</span>(x)</code></pre></div>
+<pre><code>## [1] &quot;[-0.257,0.426]&quot; &quot;[-2.19,-0.257]&quot; &quot;[0.426,1.92]&quot;</code></pre>
+<p>You get a vector of character strings, containing brackets and commas. Okay, well I can use a string replace function from <code>stringr</code> to get rid of the brackets (don’t forget to escape them twice!), then split the string on the commas, oh darn that returns a list, okay unlist it…</p>
+<p>Stop. Use <code>get_vector_cutpoints</code>. This uses a regular expression to parse the unique numeric values from the above character vector and returns a numeric vector of the (sorted!) unique cutpoints.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">get_vector_cutpoints</span>(x)</code></pre></div>
+<pre><code>## [1] -2.190 -0.257  0.426  1.920</code></pre>
+</div>
+<div id="binned_data_cutpoints" class="section level3">
+<h3>binned_data_cutpoints</h3>
+<p>Typically data is stored in dataframes, not individual vectors. Rather than calling <code>column_vector</code> on a vector before using <code>get_vector_cutpoints</code>, and then doing this for all variables in your dataset (more programming!), use <code>binned_data_cutpoints</code> to quickly get a named list, each element being a numeric vector of cutpoints for the corresponding factor variable.</p>
+<p>For example, remember the <code>Seatbelts</code> data that we binned? If you’d like to know what the actual binned values are for each variable, try:</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">binned_data_cutpoints</span>(d_bin)</code></pre></div>
+<pre><code>## $DriversKilled
+## [1]  60 110 131 198
+## 
+## $drivers
+## [1] 1060 1520 1760 2650
+## 
+## $front
+## [1]  426  764  905 1300
+## 
+## $rear
+## [1] 224 365 434 646
+## 
+## $kms
+## [1]  7680 13600 16600 21600
+## 
+## $PetrolPrice
+## [1] 0.0812 0.0974 0.1110 0.1330
+## 
+## $VanKilled
+## [1]  2  7 11 17</code></pre>
+<p>The primary use case for this is when binning training set variables for binning a model- in order to predict on a test set, you are going to need to be able to bin the test set variables into the <em>same</em> bins that you used for the training set variables. Otherwise, you will be comparing factor variables with different levels, which doesn’t make sense.</p>
+</div>
+<div id="create_model_matrix" class="section level3">
+<h3>create_model_matrix</h3>
+<p>When using the base <code>R</code> functions for modelling (<code>lm</code>, <code>glm</code>, etc) and many established advanced functions in other packages (<code>nlme::nlme</code>, <code>glmm:glmm</code>, etc ), the user is able to specify a model using a formula interface:</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">mod &lt;-<span class="st"> </span><span class="kw">lm</span>(y ~<span class="st"> </span>x,<span class="dt">data =</span> mydata)</code></pre></div>
+<p>This is very convenient because</p>
+<ul>
+<li>It corresponds to how we write models down on paper</li>
+<li>You can keep your input and target variables in the same dataframe</li>
+</ul>
+<p>The base <code>R</code> package provides the <code>model.matrix</code> function, which takes a formula and a matrix/dataframe and creates the corresponding dummy variables. <code>create_model_matrix</code> is a wrapper around this function that takes only a dataframe, and automatically creates dummies for only the factor variables, and outputs either a matrix or a <code>tbl</code>.</p>
+<p>The usage is straightforward:</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># Print this in your own R console:</span>
+x &lt;-<span class="st"> </span><span class="kw">create_model_matrix</span>(d_train_bin)
+
+<span class="co"># Prettier output:</span>
+<span class="kw">create_model_matrix</span>(d_train_bin,<span class="dt">matrix_out =</span> <span class="ot">FALSE</span>)</code></pre></div>
+<pre><code>## Source: local data frame [134 x 22]
+## 
+##    DriversKilled[108,130] DriversKilled[130,198] DriversKilled[60,108]
+##                     (dbl)                  (dbl)                 (dbl)
+## 1                       0                      0                     1
+## 2                       0                      0                     1
+## 3                       0                      0                     1
+## 4                       0                      0                     1
+## 5                       1                      0                     0
+## 6                       0                      0                     1
+## 7                       0                      0                     1
+## 8                       0                      1                     0
+## 9                       0                      1                     0
+## 10                      0                      1                     0
+## ..                    ...                    ...                   ...
+## Variables not shown: drivers[1.06e+03,1.51e+03] (dbl),
+##   drivers[1.51e+03,1.74e+03] (dbl), drivers[1.74e+03,2.65e+03] (dbl),
+##   front[426,763] (dbl), front[763,918] (dbl), front[918,1.3e+03] (dbl),
+##   rear[224,357] (dbl), rear[357,442] (dbl), rear[442,646] (dbl),
+##   kms[1.3e+04,1.62e+04] (dbl), kms[1.62e+04,2.16e+04] (dbl),
+##   kms[7.68e+03,1.3e+04] (dbl), PetrolPrice[0.0827,0.0973] (dbl),
+##   PetrolPrice[0.0973,0.11] (dbl), PetrolPrice[0.11,0.133] (dbl),
+##   VanKilled[11,17] (dbl), VanKilled[3,7] (dbl), VanKilled[7,11] (dbl), id
+##   (int)</code></pre>
+<p>The default, matrix output is suitable for input into other <code>R</code> packages, such as <code>glmnet</code>.</p>
+</div>
+</div>
+</div>
+
+
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>
